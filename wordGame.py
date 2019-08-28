@@ -7,6 +7,10 @@ import time
 # download word database
 #nltk.download('words')
 
+class GameOver(Exception):
+    """
+    raises an error when game is over
+    """
 
 class WordGameUI:
     """
@@ -101,8 +105,6 @@ class WordGameUI:
         """
         # assign a task to user
         self.wg._set_task()
-        # display task to user
-        #print("""form a word from the given characters. \n""", self.wg._get_task())
 
         #---------- checking algorithm ---------------
         # get the keys of the dictionary and add to targ
@@ -138,23 +140,35 @@ class WordGameUI:
         recieves input and gives the appropriate response
         """
         ans = str(input('enter your answer here: '))
+        # convert to upper case
         ans = ans.upper()
+        # strip extra spaces
+        ans = ans.strip()
+        # test ---> remember to delete
         print(ans)
         # if word is in both dictionaries 
         if ans in self.wg.possi_words:
-                print('correct')
-                # score is 1 per char of word formed
+                # congratulate the player and print current score
+                print('correct!')
+                # Increase current score; score is 1 per char of word formed
                 self.score += (len(ans) * 1)
+                # show current game progress information
+                print(f'Score: {self.score}')
+                print(f'Live(s): {self.lives}\n')
                 # empty possi_words array
                 self.wg.possi_words = set()
         else:
             print('wrong!')
             # subtract 1 from live
             self.lives -= 1
+            # show current game progress information
+            print(f'Score: {self.score}')
+            print(f'Live(s): {self.lives}\n')
             # empty possi_words array
             self.wg.possi_words = set()
+            # game over when live is less than 1
             if self.lives == 0:
-                raise ValueError('invalid word')
+                raise GameOver('Game Over! live less than 1')
 
 #-----------------------------------------------------------
 
@@ -165,19 +179,20 @@ class WordGameUI:
         try:
             # introduction
             player = input('Enter your game name: ')
-            print('welcome to EA WordGame {}!'.format(player))
+            print(f'welcome to EA WordGame {player}!')
             time.sleep(2)
             print('i hope you enjoy it')
             time.sleep(3)
-            print('Loading...pls wait.....')
+            print('Loading...\npls wait.....')
             while self.lives > 0:
                 self.give_test()
-                print('{} words can be formed, here they are:- '.format(len(self.wg.possi_words)), self.wg.possi_words)
+                # test ----> remember to remove
+                #print('{} words can be formed, here they are:- '.format(len(self.wg.possi_words)), self.wg.possi_words)
                 self.proc()
                 # empty the list of letters
                 self.wg._task = []
-        except ValueError:
-            print('Game over!')
+        except GameOver as error:
+            print(error)
             print('score:',self.score)        
 
 
